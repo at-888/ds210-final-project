@@ -7,7 +7,7 @@ use csv::ReaderBuilder;
 // input: a path with the CSV name
 // output: an Array2 of ColumnVals representing the relevant data
 // iterate over the lines of the CSV, split by commas but treat things in double quotes as single entries. Gets only the cols of interest
-pub fn read_CSV_using_reader(path: &str) -> Array2<ColumnVal> {
+pub fn read_CSV_using_reader(path: &str) -> Array2<crate::ColumnVal> {
     let mut rdr = csv::ReaderBuilder::new()
     .has_headers(true)
     .delimiter(b',')
@@ -20,7 +20,7 @@ pub fn read_CSV_using_reader(path: &str) -> Array2<ColumnVal> {
 
     let mut counter = 0; // this counts number of rows
 
-    let mut giant_vec: Vec<ColumnVal> = Vec::new(); // the out array will be created using this and reshaping
+    let mut giant_vec: Vec<crate::ColumnVal> = Vec::new(); // the out array will be created using this and reshaping
 
     for result in rdr.records() {
         match result {
@@ -28,13 +28,13 @@ pub fn read_CSV_using_reader(path: &str) -> Array2<ColumnVal> {
                 counter += 1; // we've found a new row
                 for (num, item) in record.iter().enumerate() { // item is a particular cell
                     if num == 1 || num == 3 || num == 4 { // cols of interest are user, comment content, video name
-                        giant_vec.push(ColumnVal::One(item.to_string()));
+                        giant_vec.push(crate::ColumnVal::One(item.to_string()));
                     }
                     if num == 5 { // and the fourth col of interest is the classification as spam or not
                         if item == "1" {
-                            giant_vec.push(ColumnVal::Two(true));
+                            giant_vec.push(crate::ColumnVal::Two(true));
                         } else if item == "0" {
-                            giant_vec.push(ColumnVal::Two(false));
+                            giant_vec.push(crate::ColumnVal::Two(false));
                         } else {
                             println!("This should not execute");
                         }
@@ -48,7 +48,7 @@ pub fn read_CSV_using_reader(path: &str) -> Array2<ColumnVal> {
         }
     }
     
-    let out_arr: Array2<ColumnVal> = Array::from_vec(giant_vec).into_shape((counter, 4)).expect("Failed to reshape!");
+    let out_arr: Array2<crate::ColumnVal> = Array::from_vec(giant_vec).into_shape((counter, 4)).expect("Failed to reshape!");
     return out_arr;
 }
 
