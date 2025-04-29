@@ -27,7 +27,7 @@ struct DataFrame {
 
 fn main() {
 
-    let my_arr: Array2<ColumnVal> = read_CSV_using_reader("Youtube-Spam-Dataset.csv");
+    let my_arr: Array2<ColumnVal> = csv_functions::read_CSV_using_reader("Youtube-Spam-Dataset.csv");
     let (my_map, users) = map_users_to_words(&my_arr); // my_map maps a user to a hashset of words they used. users is a vector of unique users in some random order
     
     let (num_spam_users, spammers) = spam_functions::find_spam(&my_arr, &users); // spammers is a vector of unique spammers
@@ -304,62 +304,10 @@ fn find_num_disconnected_graphs(graph: &HashMap<String, Vec<String>>) -> u32 {
 }
 
 
-// purpose: put the relevant CSV data into an array
-// input: a path with the CSV name
-// output: an Array2 of ColumnVals representing the relevant data
-// iterate over the lines of the CSV, split by commas but treat things in double quotes as single entries. Gets only the cols of interest
-fn read_CSV_using_reader(path: &str) -> Array2<ColumnVal> {
-    let mut rdr = csv::ReaderBuilder::new()
-    .has_headers(true)
-    .delimiter(b',')
-    .double_quote(true)
-    .escape(Some(b'\\'))
-    .flexible(false)
-    .from_path(path).unwrap();
-
-    let headers = rdr.headers();
-
-    let mut counter = 0; // this counts number of rows
-
-    let mut giant_vec: Vec<ColumnVal> = Vec::new(); // the out array will be created using this and reshaping
-
-    for result in rdr.records() {
-        match result {
-            Ok(record) => { // record is a line
-                counter += 1; // we've found a new row
-                for (num, item) in record.iter().enumerate() { // item is a particular cell
-                    if num == 1 || num == 3 || num == 4 { // cols of interest are user, comment content, video name
-                        giant_vec.push(ColumnVal::One(item.to_string()));
-                    }
-                    if num == 5 { // and the fourth col of interest is the classification as spam or not
-                        if item == "1" {
-                            giant_vec.push(ColumnVal::Two(true));
-                        } else if item == "0" {
-                            giant_vec.push(ColumnVal::Two(false));
-                        } else {
-                            println!("This should not execute");
-                        }
-                        
-                    }
-                }
-            },
-            Err(err) => {
-                println!("error reading CSV record {}", err);
-            }  
-        }
-    }
-    
-    let out_arr: Array2<ColumnVal> = Array::from_vec(giant_vec).into_shape((counter, 4)).expect("Failed to reshape!");
-    return out_arr;
-}
-
-
-
-
 
 #[test]
 fn test_similarity1() {
-    let df: Array2<ColumnVal> = read_CSV_using_reader("Youtube-Spam-Dataset.csv");
+    let df: Array2<ColumnVal> = csv_functions::read_CSV_using_reader("Youtube-Spam-Dataset.csv");
     let (my_map, users) = map_users_to_words(&df); // my_map maps a user to a hashset of words they used. users is a vector of unique users in some random order
     
     let res = find_similarities(format!("Сергей Андреевич"), format!("Ed Garcon"), &my_map);
@@ -370,7 +318,7 @@ fn test_similarity1() {
 
 #[test]
 fn test_similarity2() {
-    let df: Array2<ColumnVal> = read_CSV_using_reader("Youtube-Spam-Dataset.csv");
+    let df: Array2<ColumnVal> = csv_functions::read_CSV_using_reader("Youtube-Spam-Dataset.csv");
     let (my_map, users) = map_users_to_words(&df); // my_map maps a user to a hashset of words they used. users is a vector of unique users in some random order
     
     let res = find_similarities(format!("MrCurr3ncY"), format!("Julius NM"), &my_map);
@@ -381,7 +329,7 @@ fn test_similarity2() {
 
 #[test]
 fn test_graph_creation() {
-    let df: Array2<ColumnVal> = read_CSV_using_reader("Youtube-Spam-Dataset.csv");
+    let df: Array2<ColumnVal> = csv_functions::read_CSV_using_reader("Youtube-Spam-Dataset.csv");
     let (my_map, users) = map_users_to_words(&df); // my_map maps a user to a hashset of words they used. users is a vector of unique users in some random order
     
     let users_shortened: Vec<String> = vec![format!("Sara"), format!("John"), format!("Teah")];
@@ -431,7 +379,7 @@ fn test_graph_creation() {
 
 #[test]
 fn test_num_graphs() {
-    let df: Array2<ColumnVal> = read_CSV_using_reader("Youtube-Spam-Dataset.csv");
+    let df: Array2<ColumnVal> = csv_functions::read_CSV_using_reader("Youtube-Spam-Dataset.csv");
     let (my_map, users) = map_users_to_words(&df); // my_map maps a user to a hashset of words they used. users is a vector of unique users in some random order
     let my_graph_sim: HashMap<String, Vec<String>> = create_graph(&users, &my_map, 0.0); // maps a name to a vector of names of people whose similarity index with them is at least the threshold
     
