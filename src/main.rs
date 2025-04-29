@@ -4,6 +4,7 @@ use std::collections::HashMap;
 use std::collections::HashSet;
 use std::collections::VecDeque;
 
+mod csv_functions;
 mod spam_functions;
 
 
@@ -40,7 +41,7 @@ fn main() {
     
 
     // Spam only
-    let spam_arr: Array2<ColumnVal> = spam_functions::spam_specific_arr("Youtube-Spam-Dataset.csv");
+    let spam_arr: Array2<ColumnVal> = csv_functions::spam_specific_arr("Youtube-Spam-Dataset.csv");
     let (map_of_spam, spammers2) = map_users_to_words(&spam_arr); // spammers2 is the same vector as spammers; the order might be a little different
 
     let my_graph_spam_only: HashMap<String, Vec<String>> = create_graph(&spammers2, &map_of_spam, 0.7);
@@ -472,7 +473,7 @@ fn test_spam_finding() {
 
 #[test]
 fn test_spam_arr_making() {
-    let spam_arr: Array2<ColumnVal> = spam_functions::spam_specific_arr("Youtube-Spam-Dataset.csv");
+    let spam_arr: Array2<ColumnVal> = csv_functions::spam_specific_arr("Youtube-Spam-Dataset.csv");
     let mut unique_spammers: HashSet<String> = HashSet::new();
     for spammer in spam_arr.column(0) {
         match spammer {
